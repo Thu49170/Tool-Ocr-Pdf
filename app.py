@@ -72,7 +72,6 @@ def pdf_to_images(pdf_bytes):
 def process_image_ocr(image_bytes, api_key):
     """
     Gửi ảnh sang Gemini Vision để phân tích và trích xuất bố cục form/bảng.
-    Mô hình sử dụng: gemini-1.5-flash
     """
     client = genai.Client(api_key=api_key)
     
@@ -87,15 +86,15 @@ def process_image_ocr(image_bytes, api_key):
     Không thêm bất kỳ lời giới thiệu nào, chỉ trả về nội dung tài liệu dưới dạng Markdown.
     """
     
+    # Đổi tên model thành 'gemini-2.0-flash' (hoặc 'gemini-1.5-flash-latest')
     response = client.models.generate_content(
-        model='gemini-1.5-flash',
+        model='gemini-2.0-flash',
         contents=[
             types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
             prompt
         ]
     )
     return response.text
-
 def export_to_word(markdown_text):
     """
     Chuyển đổi Markdown thành file MS Word (.docx) bảo toàn Bảng (Table Grid).
