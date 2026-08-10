@@ -72,8 +72,9 @@ def pdf_to_images(pdf_bytes):
 def process_image_ocr(image_bytes, api_key):
     """
     Gửi ảnh sang Gemini Vision để phân tích và trích xuất bố cục form/bảng.
+    Sử dụng thư viện google-generativeai chuẩn định dạng.
     """
-    client = genai.Client(api_key=api_key)
+    genai.configure(api_key=api_key)
     
     prompt = """
     Hãy đóng vai là một chuyên gia OCR và tái tạo tài liệu hàng đầu:
@@ -86,14 +87,14 @@ def process_image_ocr(image_bytes, api_key):
     Không thêm bất kỳ lời giới thiệu nào, chỉ trả về nội dung tài liệu dưới dạng Markdown.
     """
     
-    # Đổi tên model thành 'gemini-2.0-flash' (hoặc 'gemini-1.5-flash-latest')
-    response = client.models.generate_content(
-        model='gemini-1.5-flash',
-        contents=[
-            types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
-            prompt
-        ]
-    )
+    # Khởi tạo mô hình gemini-1.5-flash
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    
+    # Chuyển file ảnh bytes sang định dạng PIL Image
+    image = Image.open(io.BytesIO(image_bytes))
+    
+    # Gửi yêu cầu nhận diện
+    response = model.generate_content([prompt, image])
     return response.text
 def export_to_word(markdown_text):
     """
